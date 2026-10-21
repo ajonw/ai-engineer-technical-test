@@ -1,0 +1,26 @@
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DATABASE_PATH: /code/data/receipts.sqlite3
+      QDRANT_URL: http://qdrant:6333
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Jakarta}
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: qwen2.5:3b-instruct
+    volumes:
+      - app_data:/code/data
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    mem_limit: 1g
+  qdrant:
+    image: qdrant/qdrant:v1.12.6
+    # Not exposed on the host by default. The API reaches it on the Compose network.
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+volumes:
+  app_data:
+  qdrant_data:
